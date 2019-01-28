@@ -6,7 +6,7 @@ import socket
 from pathlib import Path
 import logging
 from uuid import uuid4
-# from os import getpid
+from os import getpid
 
 workdir = Path(__file__).resolve().parent
 with open(workdir / 'config.yml') as config_f:
@@ -14,7 +14,7 @@ with open(workdir / 'config.yml') as config_f:
 
 logging.basicConfig(
     format='[%(levelname)s] %(message)s',
-    level=config['loglevel'])
+    level=logging.getLevelName(config['loglevel']))
 
 
 class ClientConnection(asyncio.Protocol):
@@ -147,9 +147,9 @@ class Socks5Server(asyncio.Protocol):
                 +----+------+----------+------+----------+
             """
             ver, ulen = struct.unpack('<BB', data[:2])
-            uname, = (f.decode('ANSI') for f in struct.unpack_from(f'<{ulen}s', data, offset=2))
+            uname, = (f.decode('ASCII') for f in struct.unpack_from(f'<{ulen}s', data, offset=2))
             plen, = struct.unpack_from(f'<B', data, offset=2 + ulen)
-            passwd, = (f.decode('ANSI') for f in struct.unpack_from(
+            passwd, = (f.decode('ASCII') for f in struct.unpack_from(
                 f'<{plen}s', data, offset=3 + ulen))
             """
                 auth reply
@@ -218,7 +218,6 @@ class Socks5Server(asyncio.Protocol):
 
 
 def service_handler(**args):
-    # print(getpid())
 
     async def main():
         loop = asyncio.get_running_loop()
@@ -227,7 +226,7 @@ def service_handler(**args):
             host=args['host'],
             port=args['port']
         )
-        logging.debug('serving on {}'.format(server.sockets[0].getsockname()))
+        logging.info('PID {} serving on {}'.format(getpid(), server.sockets[0].getsockname()))
         async with server:
             await server.serve_forever()
 
