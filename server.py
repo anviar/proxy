@@ -220,8 +220,7 @@ class Socks5Server(asyncio.Protocol):
 def service_handler(**args):
 
     async def main():
-        loop = asyncio.get_running_loop()
-        server = await loop.create_server(
+        server = await asyncio.get_running_loop().create_server(
             lambda: args['service'](**args),
             host=args['host'],
             port=args['port']
