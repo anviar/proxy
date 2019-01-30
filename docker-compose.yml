@@ -1,0 +1,11 @@
+version: '3.7'
+services:
+  proxy:
+    build: ./
+    image: pyproxy:latest
+    container_name: pyproxy
+    ports:
+      - target : 1080
+        published: 1234
+        protocol: tcp
+    restart: unless-stopped
